@@ -1,128 +1,234 @@
-# Scrapekia: Enterprise Logistics & Fleet Management System ♻️
+# Scrap Collection Operations System ♻️
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.10.7+-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Riverpod](https://img.shields.io/badge/State--Management-Riverpod-02569B?logo=riverpod&logoColor=white)](https://riverpod.dev/)
 [![Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Feature--First-orange)](#system-architecture)
 
-**Scrapekia** is a high-performance, production-grade logistics application designed for a real-world scrap collection enterprise. It manages the full lifecycle of scrap retrieval—from customer order placement and administrative fleet oversight to real-time worker dispatch and route optimization.
+**Scrap Collection Operations System** is a real-world mobile operations platform built for scrap collection businesses.
+It digitizes the workflow of receiving scrap pickup requests, assigning field workers, and tracking operations using a map-based interface.
+
+The application replaces manual coordination methods (phone calls, spreadsheets, messaging apps) with a centralized system used by administrators and field workers.
 
 ---
 
-## 🏗️ Professional Project Overview
+# 🚀 Project Overview
 
-Scrapekia is engineered as a robust, scalable solution for the "last-mile" scrap collection industry. Unlike simple CRUD applications, this system handles complex state synchronization across multiple user roles (Admins and Field Workers) and integrates deep mapping logic to solve physical logistics challenges. It prioritizes reliability and offline resilience, ensuring that field operations continue even in areas with poor network coverage.
+This system is designed to support the daily logistics workflow of scrap collection companies.
 
-## ⚠️ Problem Statement
+The application manages the entire pickup lifecycle:
 
-In the scrap collection industry, manual coordination leads to significant inefficiencies:
+1. Customers submit scrap pickup requests.
+2. Administrators manage incoming orders.
+3. Field workers accept pickup tasks.
+4. Workers navigate to pickup locations via an interactive map.
+5. Orders are tracked until completion.
 
-- **Operation Latency**: Delays in assigning pickup requests to available field workers.
-- **Suboptimal Logistics**: High fuel costs and time wastage due to disorganized routing.
-- **Data Silos**: Difficulty tracking financial transactions and worker performance across the fleet.
-- **Resiliency Gaps**: Field workers losing access to critical order data in dead zones.
-
-**Scrapekia addresses these by providing a real-time, geolocated, and offline-capable dashboard that optimizes fleet movement and automates order prioritization.**
-
----
-
-## ✨ Key Features
-
-- **🔄 Real-Time Synchronization**: Leverages Supabase real-time subscriptions and Riverpod reactive state to ensure all stakeholders see order status updates instantly.
-- **🛠️ Intelligent Dispatch System**: RPC-driven worker assignment logic prevents race conditions during order claims.
-- **📈 Automated Priority Bumping**: A server-side/client-side hybrid logic that elevates order urgency (Normal → Medium → Urgent) automatically based on elapsed time.
-- **👥 Role-Based Access Control (RBAC)**: Secure access management using Supabase Row Level Security (RLS) to separate administrative telemetry from worker-specific field data.
-- **💰 Financial Transparency**: Built-in transaction logging and service price lists to standardize collection costs and payments.
+The platform focuses on **real-time coordination, operational visibility, and efficient worker dispatching**.
 
 ---
 
-## 🏛️ System Architecture
+# ⚠️ Problem Statement
 
-Scrapekia utilizes a **Feature-First Modular Architecture**, promoting strict separation of concerns and high testability.
+Many scrap collection businesses rely on informal communication such as:
 
-### Architectural Layers:
+- Phone calls
+- WhatsApp messages
+- Paper notes
+- Manual order tracking
 
-1.  **Presentation Layer**: Decoupled UI using Riverpod `Notifier` and `StateNotifier`. This ensures that business logic is completely separated from the widget tree.
-2.  **Domain Layer**: Feature-specific models (Orders, Users, MapData) that represent the business state.
-3.  **Data Layer**: Centralized repositories managing Supabase interactions, Hive local caching, and secure storage for sensitive credentials.
-4.  **Service Layer**: Singleton-style services for GPS tracking, OSRM routing, and network connectivity monitoring.
+This leads to several operational challenges:
 
-### Why Riverpod?
+- Delays in assigning orders to workers
+- Limited visibility of active pickups
+- Difficulty tracking worker availability
+- Disorganized customer data
+- Inefficient travel routes between pickups
 
-Riverpod was chosen for its compile-time safety and ability to handle complex provider dependencies. During development, we optimized the logout flow to handle recursive provider invalidations, ensuring a clean state reset across all modules without circular dependency exceptions.
-
----
-
-## 🗺️ Map & Location System
-
-The heart of the application is a sophisticated mapping engine:
-
-- **Offline Resilience**: Uses **MBTiles (sqlite3)** to store and render map tiles locally, ensuring functionality without internet.
-- **Route Optimization**: Integrates **OSRM (Open Source Routing Machine)** for real-time road-distance calculations rather than simple "as-the-crow-flies" distance.
-- **Dynamic Proximity Sorting**: field workers see orders sorted by actual road distance from their current GPS coordinates.
-- **Edge Indicators**: A custom UI implementation that points to off-screen markers, helping workers maintain spatial awareness of their surrounding assignments.
+This system solves these problems by centralizing order management, worker dispatching, and location tracking in one application.
 
 ---
 
-## 🛠️ Tech Stack
+# ✨ Key Features
 
-- **Frontend**: Flutter SDK (3.10.7+), Material 3
-- **State Management**: flutter_riverpod, state_notifier
-- **Database (Cloud)**: PostgreSQL via Supabase
-- **Database (Local)**: Hive CE (High-performance NoSQL), SharedPreferences
-- **Mapping**: flutter_map, latlong2, OSRM API, mbtiles
-- **Security**: Supabase Auth, flutter_secure_storage, BCrypt
-- **UI/UX**: Lottie, Shimmer AI, Google Fonts (Cairo)
+### 📦 Order Management
 
----
+- Create and manage scrap pickup requests
+- Track order status (pending, accepted, completed)
+- Automatic priority updates based on waiting time
 
-## 🔐 Security & Authentication
+### 👥 Worker Dispatch
 
-- **Identity Management**: Secure phone-to-email masking for private user authentication.
-- **Data Privacy**: RLS policies ensure workers only access assigned data, while admins maintain full visibility.
-- **Credential Storage**: Sensitive tokens are managed via `flutter_secure_storage` using platform-specific encryption (Keychain for iOS, Keystore for Android).
+- Assign field workers to pickup orders
+- Workers can view and accept available orders
+- Worker capacity limits to prevent overload
 
----
+### 🗺 Interactive Map System
 
-## 📸 Screenshots
+- Display pickup locations on a map
+- Show worker GPS location
+- Calculate road-based routes using OSRM
+- Sort orders based on road distance
 
-<div align="center">
-  <table>
-    <tr>
-      <td><img src="app screenshot/Screenshot_20260310_133824.jpg" width="180" /><br/><b>Dashboard</b></td>
-      <td><img src="app screenshot/Screenshot_20260310_133839.jpg" width="180" /><br/><b>Map Engine</b></td>
-      <td><img src="app screenshot/Screenshot_20260310_133851.jpg" width="180" /><br/><b>Fleet Orders</b></td>
-      <td><img src="app screenshot/Screenshot_20260310_133906.jpg" width="180" /><br/><b>Profile</b></td>
-    </tr>
-  </table>
-</div>
+### 🔐 Role-Based Access Control
 
----
+- Separate roles for **admin** and **field workers**
+- Secure database access using Supabase **Row Level Security**
 
-## 📈 Scalability & Future Improvements
+### 💰 Transaction Logging
 
-- **TSP Algorithm Integration**: Moving from proximity sorting to a full Traveling Salesman Problem (TSP) solver for worker route batches.
-- **Push Notification Service**: Implementation of FCM (Firebase Cloud Messaging) for instant dispatch alerts.
-- **Analytics Engine**: Leveraging Supabase functions to generate weekly performance reports for fleet managers.
+- Record operational transactions
+- Track financial adjustments and service usage
+
+### ⏰ Worker Availability
+
+- Weekly availability configuration
+- Prevent assignments outside working hours
 
 ---
 
-## 💡 Lessons Learned & Engineering Insights
+# 🏛 System Architecture
 
-- **State Management Resilience**: One of the critical engineering hurdles was managing the invalidation of multiple dependent providers (Auth, Map, Orders) during logout. Transitioning `late final` fields to `late` allowed the Riverpod `build()` method to refresh cleanly, preventing `LateInitializationError` during rapid state transitions.
-- **Geo-Spatial Performance**: Rendering hundreds of map markers with real-time route updates required careful optimization of the Riverpod `listen` and `select` patterns to prevent UI jank.
+The project follows a **Feature-First Modular Architecture** designed to keep the codebase maintainable and scalable.
+
+### Architecture Layers
+
+**Presentation Layer**
+
+- Flutter UI components
+- Riverpod state management
+- Feature-based screen modules
+
+**Domain Layer**
+
+- Business models (Orders, Profiles, Transactions)
+- Application logic representation
+
+**Data Layer**
+
+- Supabase PostgreSQL backend
+- Repository-based data access
+- Local caching using Hive
+
+**Service Layer**
+
+- Location tracking
+- Routing service integration
+- Network connectivity monitoring
+
+This separation allows the project to scale while keeping the code organized.
 
 ---
 
-## ✍️ Author
+# 🗺 Map & Location System
+
+A central part of the application is the **map-based operational dashboard**.
+
+Capabilities include:
+
+- Real-time worker GPS tracking
+- Order markers displayed on the map
+- Road-distance routing using **OSRM**
+- Map marker clustering for performance
+- Edge indicators for off-screen orders
+
+This allows workers to identify nearby pickups and navigate efficiently.
+
+---
+
+# 🧠 Engineering Highlights
+
+- Feature-first Flutter architecture
+- Reactive state management with Riverpod
+- Real-time backend synchronization with Supabase
+- Role-based access control using PostgreSQL RLS
+- Map-based order visualization
+- Cached routing requests to reduce external API usage
+- Modular services for location and routing
+
+---
+
+# 🛠 Tech Stack
+
+### Mobile
+
+Flutter (Material 3)
+
+### State Management
+
+- flutter_riverpod
+- state_notifier
+
+### Backend
+
+- Supabase
+- PostgreSQL
+
+### Local Storage
+
+- Hive CE
+- SharedPreferences
+- flutter_secure_storage
+
+### Mapping
+
+- flutter_map
+- latlong2
+- OSRM API
+
+### UI/UX
+
+- Google Fonts (Cairo)
+- Lottie
+- Shimmer
+
+---
+
+# 🔐 Security & Authentication
+
+Security is implemented using Supabase authentication and database policies.
+
+Key mechanisms include:
+
+- Secure user authentication
+- Role-based access control
+- PostgreSQL **Row Level Security**
+- Encrypted token storage using `flutter_secure_storage`
+
+---
+
+# 📸 Screenshots
+
+| Dashboard                                          | Map                                                | Orders                                             | Profile                                            |
+| -------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| ![](app screenshot/Screenshot_20260310_133824.jpg) | ![](app screenshot/Screenshot_20260310_133839.jpg) | ![](app screenshot/Screenshot_20260310_133851.jpg) | ![](app screenshot/Screenshot_20260310_133906.jpg) |
+
+---
+
+# 📈 Future Improvements
+
+Possible future enhancements include:
+
+- Push notifications for new pickup assignments
+- Advanced route optimization algorithms
+- Worker performance analytics
+- Web-based admin dashboard
+- Multi-city operational support
+
+---
+
+# 👨‍💻 Author
 
 **Your Name**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
+GitHub
+[https://github.com/iziadehap](https://github.com/iziadehap)
+
+LinkedIn
+[linkedin.com/in/iziadehap](https://linkedin.com/in/iziadehap)
 
 ---
 
-## 📄 License
+# 📄 License
 
-This project is proprietary property of **Scrapekia**.
+This project is shared for **portfolio and demonstration purposes**.
