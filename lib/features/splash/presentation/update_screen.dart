@@ -36,6 +36,7 @@ class _UpdateGateState extends State<UpdateGate> {
     });
 
     try {
+      print('checking for update');
       final supabase = Supabase.instance.client;
       final d = await AppUpdateService(supabase).checkForUpdate();
       setState(() {
@@ -43,6 +44,7 @@ class _UpdateGateState extends State<UpdateGate> {
         loading = false;
       });
     } catch (e) {
+      print('error in update $e');
       setState(() {
         err = e.toString();
         loading = false;

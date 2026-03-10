@@ -9,6 +9,7 @@ import 'core/services/supabase_service.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/splash/presentation/update_screen.dart';
 import 'features/settings/data/settings_provider.dart';
+// flutter build apk --split-per-abi
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
