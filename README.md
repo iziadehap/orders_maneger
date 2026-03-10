@@ -199,7 +199,7 @@ Key mechanisms include:
 
 # 📸 Screenshots
 
-| Dashboard                                            | Map                                                  | Orders                                               | Profile                                              |
+| Login                                            | Orders                                                  | PriceList                                               | OrderDetils                                              |
 | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
 | ![](app%20screenshot/Screenshot_20260310_133824.jpg) | ![](app%20screenshot/Screenshot_20260310_133839.jpg) | ![](app%20screenshot/Screenshot_20260310_133851.jpg) | ![](app%20screenshot/Screenshot_20260310_133906.jpg) |
 
