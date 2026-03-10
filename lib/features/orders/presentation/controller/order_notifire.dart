@@ -27,7 +27,7 @@ class OrderNotifier extends Notifier<OrderState> {
           .select()
           .order(SupabaseOrdersCulomns.createdAt, ascending: false);
 
-      // print(response);
+      // print('response $response');
 
       final List<Order> orders = (response as List<dynamic>)
           .map((order) => Order.fromJson(order as Map<String, dynamic>))

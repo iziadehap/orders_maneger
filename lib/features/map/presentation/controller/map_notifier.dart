@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -8,8 +10,10 @@ import 'package:moamen_project/features/map/data/map_model.dart';
 import 'package:moamen_project/features/map/presentation/controller/map_state.dart';
 import 'package:moamen_project/features/orders/data/models/order_model.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mbtiles/mbtiles.dart';
 
 class MapNotifier extends Notifier<MapState> {
   StreamSubscription<Position>? _locationSubscription;
@@ -45,6 +49,7 @@ class MapNotifier extends Notifier<MapState> {
   static const String _cacheLastLocLat = 'map_cache_last_loc_lat';
   static const String _cacheLastLocLon = 'map_cache_last_loc_lon';
   static const String _cacheOrderIds = 'map_cache_order_ids';
+  // ─── MBTiles ───────────────────────────────────
 
   Future<void> initLocationService() async {
     try {
@@ -368,3 +373,77 @@ class MapNotifier extends Notifier<MapState> {
     }
   }
 }
+
+// import 'package:mbtiles/mbtiles.dart';
+
+// Future<void> debugMbtiles(String path) async {
+//   final mb = MbTiles(mbtilesPath: path);
+//   // await mb.open();
+//   final meta = mb.getMetadata();
+//   // meta keys usually include: format, bounds, center, minzoom, maxzoom, scheme...
+//   // print them:
+//   // ignore: avoid_print
+//   print('MBTiles metadata: $meta');
+//   // await mb.close();
+// }
+
+// Future<String> prepareMbtiles(
+//   String mbtilesAssetPath,
+//   int mbtilesVersion,
+// ) async {
+//   final dir = await getApplicationDocumentsDirectory();
+
+//   // Versioned filename prevents rewriting every launch + supports upgrades.
+//   final fileName = 'alexandria.mbtiles';
+//   final file = File('${dir.path}/$fileName');
+
+//   // ✅ If already exists, DO NOTHING.
+//   print('✅ Checking for existing mbtiles file: ${file.path}');
+//   if (await file.exists()) {
+//     // debugMbtiles(file.path);
+//     print('✅ MBTiles file already exists: ${file.path}');
+//     return file.path;
+//   }
+
+//   // // Optional cleanup: delete older versions so you don't waste storage.
+//   // try {
+//   //   await deleteOldMbtilesVersions(dir.path, mbtilesVersion);
+//   // } catch (e) {
+//   //   print('Failed to delete old mbtiles versions: $e');
+//   // }
+
+//   // ✅ First run (or new version): copy from assets once.
+//   print('✅ Copying mbtiles file from assets: $mbtilesAssetPath');
+//   try {
+//     final bytes = await rootBundle.load(mbtilesAssetPath);
+//     await file.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
+//   } catch (e) {
+//     print('Failed to copy mbtiles file: $e');
+//     throw e;
+//   }
+
+//   return file.path;
+// }
+
+// Future<void> deleteOldMbtilesVersions(
+//   String dirPath,
+//   int mbtilesVersion,
+// ) async {
+//   final dir = Directory(dirPath);
+//   if (!await dir.exists()) return;
+
+//   final files = dir.listSync().whereType<File>();
+//   for (final f in files) {
+//     final name = f.path.split(Platform.pathSeparator).last;
+//     // delete any old alexandria_v*.mbtiles except the current version
+//     if (name.startsWith('alexandria_v') &&
+//         name.endsWith('.mbtiles') &&
+//         !name.contains('_v$mbtilesVersion')) {
+//       try {
+//         await f.delete();
+//       } catch (_) {
+//         // ignore
+//       }
+//     }
+//   }
+// }

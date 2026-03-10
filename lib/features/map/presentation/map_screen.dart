@@ -16,6 +16,12 @@ import 'package:moamen_project/features/map/presentation/widgets/map_bottom_shee
 import 'package:moamen_project/features/map/presentation/widgets/order_details_card.dart';
 import 'package:moamen_project/features/orders/presentation/orders_screen.dart';
 
+// import 'package:moamen_project/features/map/presentation/controller/map_notifier.dart';
+// import 'package:vector_map_tiles/vector_map_tiles.dart';
+// import 'package:vector_map_tiles_mbtiles/vector_map_tiles_mbtiles.dart';
+// import 'package:mbtiles/mbtiles.dart';
+// import 'package:vector_tile_renderer/vector_tile_renderer.dart' as vtr;
+
 // ─────────────────────────────────────────────
 //  Design Tokens
 // ─────────────────────────────────────────────
@@ -38,9 +44,20 @@ class _MapScreenState extends ConsumerState<MapScreen>
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
 
+  // late final Future<String> _mbtilesPathFuture;
+
+  // final mbtilesAssetPath = 'assets/map/alexandria.mbtiles';
+  // final mbtilesVersion = 1;
+
+  // MbTiles? _mbtilesDb;
+  // MbTilesMetadata? _mbtilesMeta;
+
   @override
   void initState() {
     super.initState();
+    // debugMbtiles(mbtilesAssetPath);
+
+    // _mbtilesPathFuture = prepareMbtiles(mbtilesAssetPath, mbtilesVersion);
 
     _fadeController = AnimationController(
       vsync: this,
@@ -90,7 +107,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
             // ① Map layer
             FadeTransition(
               opacity: _fadeAnim,
-              child: _buildMap(mapState, isDarkMode, customTheme),
+              child: _buildApiMap(mapState, isDarkMode, customTheme),
+              // child: _buildLocalMap(mapState, isDarkMode, customTheme),
             ),
 
             // ② Vignette overlay
@@ -319,7 +337,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                 SizedBox(
+                SizedBox(
                   width: 40,
                   height: 40,
                   child: AnimationWidget.loadingAnimation(24),
@@ -419,7 +437,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
   }
 
   // ─── Map Builder ─────────────────────────────
-  Widget _buildMap(
+  Widget _buildApiMap(
     MapState mapState,
     bool isDarkMode,
     CustomThemeExtension customTheme,
@@ -539,6 +557,167 @@ class _MapScreenState extends ConsumerState<MapScreen>
       ],
     );
   }
+
+  // Widget _buildLocalMap(
+  //   MapState mapState,
+  //   bool isDarkMode,
+  //   CustomThemeExtension customTheme,
+  // ) {
+  //   final mapModel = mapState.mapModel;
+  //   final userLocation = mapState.userLocation;
+  //   final showPublicCircles = mapState.showPublicCircles;
+
+  //   // Use Alexandria by default (your mbtiles bounds are Alexandria only)
+  //   LatLng center = const LatLng(31.228, 29.992);
+
+  //   if (userLocation != null) {
+  //     center = userLocation;
+  //   } else if (mapModel.userPoints.isNotEmpty &&
+  //       mapModel.userPoints.first.latitude != null) {
+  //     center = LatLng(
+  //       mapModel.userPoints.first.latitude!,
+  //       mapModel.userPoints.first.longitude!,
+  //     );
+  //   } else if (mapModel.publicPoints.isNotEmpty) {
+  //     center = mapModel.publicPoints.first.points;
+  //   }
+
+  //   return FutureBuilder<String>(
+  //     future: _mbtilesPathFuture,
+  //     builder: (context, snap) {
+  //       if (!snap.hasData) {
+  //         return Center(
+  //           child: AnimationWidget.loadingAnimation(
+  //             25,
+  //             color: AppColors.primaryBlue,
+  //           ),
+  //         );
+  //       }
+
+  //       final mbtilesPath = snap.data!;
+
+  //       // ✅ Open DB ONCE (don’t reopen every rebuild)
+  //       _mbtilesDb ??= MbTiles(gzip: false, mbtilesPath: mbtilesPath);
+  //       _mbtilesMeta ??= _mbtilesDb!.getMetadata();
+
+  //       final vtr.Theme theme = vtr.ProvidedThemes.lightTheme(
+  //         logger: const vtr.Logger.console(),
+  //       );
+
+  //       return FlutterMap(
+  //         mapController: _mapController,
+  //         options: MapOptions(
+  //           // Better: center on the MBTiles default center if available
+  //           initialCenter: _mbtilesMeta!.defaultCenter ?? center,
+  //           initialZoom: _mbtilesMeta!.defaultZoom ?? 13.0,
+  //           interactionOptions: const InteractionOptions(
+  //             flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+  //           ),
+  //           onMapEvent: (event) {
+  //             if (mounted) setState(() {});
+  //           },
+  //         ),
+  //         children: [
+  //           /// ✅ OFFLINE VECTOR TILE LAYER (PBF)
+  //           /// This is the correct layer/provider for pbf MBTiles. :contentReference[oaicite:4]{index=4}
+  //           VectorTileLayer(
+  //             theme: theme,
+  //             tileProviders: TileProviders({
+  //               'openmaptiles': MbTilesVectorTileProvider(
+  //                 mbtiles: _mbtilesDb!,
+  //                 silenceTileNotFound:
+  //                     true, // stops spam logs when outside bounds
+  //               ),
+  //             }),
+  //             // Don't set this to metadata.maxZoom or you prevent over-zooming
+  //             // Package docs explicitly warn about that. :contentReference[oaicite:5]{index=5}
+  //             maximumZoom: 18,
+  //             tileOffset: TileOffset.mapbox,
+  //           ),
+
+  //           if (mapState.routePoints.isNotEmpty)
+  //             PolylineLayer(
+  //               polylines: [
+  //                 Polyline(
+  //                   points: mapState.routePoints,
+  //                   strokeWidth: 5,
+  //                   color: AppColors.primaryBlue.withOpacity(0.8),
+  //                   borderStrokeWidth: 2,
+  //                   borderColor: AppColors.primaryBlue.withOpacity(0.3),
+  //                 ),
+  //               ],
+  //             ),
+
+  //           if (showPublicCircles)
+  //             CircleLayer(
+  //               circles: mapModel.publicPoints.map((circleOrder) {
+  //                 return CircleMarker(
+  //                   point: circleOrder.points,
+  //                   color: AppColors.primaryPurple.withOpacity(0.1),
+  //                   borderColor: AppColors.primaryPurple.withOpacity(0.4),
+  //                   borderStrokeWidth: 1.5,
+  //                   useRadiusInMeter: true,
+  //                   radius: 1000,
+  //                 );
+  //               }).toList(),
+  //             ),
+
+  //           MarkerLayer(
+  //             markers: [
+  //               if (userLocation != null)
+  //                 Marker(
+  //                   point: userLocation,
+  //                   width: 60,
+  //                   height: 60,
+  //                   child: _UserLocationMarker(),
+  //                 ),
+
+  //               if (showPublicCircles)
+  //                 ...mapModel.publicPoints.map((circleOrder) {
+  //                   return Marker(
+  //                     point: circleOrder.points,
+  //                     width: 64,
+  //                     height: 64,
+  //                     child: GestureDetector(
+  //                       onTap: () => _showPublicOrdersSheet(circleOrder),
+  //                       child: _PublicClusterMarker(
+  //                         count: circleOrder.orders.length,
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }),
+
+  //               ...mapModel.userPoints.asMap().entries.map((entry) {
+  //                 final index = entry.key;
+  //                 final order = entry.value;
+
+  //                 if (order.latitude == null || order.longitude == null) {
+  //                   return const Marker(
+  //                     point: LatLng(0, 0),
+  //                     child: SizedBox.shrink(),
+  //                   );
+  //                 }
+
+  //                 return Marker(
+  //                   point: LatLng(order.latitude!, order.longitude!),
+  //                   width: 60,
+  //                   height: 60,
+  //                   child: GestureDetector(
+  //                     onTap: () => _showOrderDetailsSheet(order),
+  //                     child: _UserOrderMarker(
+  //                       index: index,
+  //                       priority: order.priority,
+  //                     ),
+  //                   ),
+  //                 );
+  //               }),
+  //             ],
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   // ─── Edge Indicators ─────────────────────────
   List<Widget> _buildEdgeIndicators(MapState mapState) {

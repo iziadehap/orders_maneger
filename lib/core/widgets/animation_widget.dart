@@ -3,12 +3,9 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 
 class AnimationWidget {
-  static Widget loadingAnimation(double size) {
+  static Widget loadingAnimation(double size, {Color color = Colors.white}) {
     return Center(
-      child: LoadingAnimationWidget.inkDrop(
-        color: Colors.white,
-        size: size,
-      ),
+      child: LoadingAnimationWidget.inkDrop(color: color, size: size),
     );
   }
 

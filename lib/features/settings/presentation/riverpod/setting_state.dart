@@ -32,3 +32,9 @@ class SettingState {
     );
   }
 }
+
+// class settingModel {
+//   final bool isDark;
+//   final bool isLocalMap;
+//   final bool 
+// }
