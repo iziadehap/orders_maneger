@@ -1,93 +1,86 @@
-# Scrapekia ♻️
+# Scrapekia: Enterprise Logistics & Fleet Management System ♻️
 
-### Enterprise-grade Logistics & Scrap Collection Management System
+[![Flutter](https://img.shields.io/badge/Flutter-3.10.7+-02569B?logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Riverpod](https://img.shields.io/badge/State--Management-Riverpod-02569B?logo=riverpod&logoColor=white)](https://riverpod.dev/)
+[![Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Architecture](https://img.shields.io/badge/Architecture-Feature--First-orange)](#system-architecture)
 
-[![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)](https://flutter.dev/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Riverpod](https://img.shields.io/badge/Riverpod-%2302569B.svg?style=for-the-badge&logo=riverpod&logoColor=white)](https://riverpod.dev/)
-
-**Scrapekia** is a production-ready Flutter application developed for a real-world scrap collection company. It streamlines the entire logistics chain—from customer pickup requests and administrative oversight to real-time worker assignment and delivery tracking.
+**Scrapekia** is a high-performance, production-grade logistics application designed for a real-world scrap collection enterprise. It manages the full lifecycle of scrap retrieval—from customer order placement and administrative fleet oversight to real-time worker dispatch and route optimization.
 
 ---
 
-## 📖 Project Overview
+## 🏗️ Professional Project Overview
 
-Scrapekia serves as the primary operational tool for a scrap collection enterprise. It bridges the gap between customers looking to dispose of scrap materials and the logistics team responsible for collection. The system ensures that every request is logged, prioritized, and assigned to the nearest available worker, optimizing the collection route and minimizing operational delays.
+Scrapekia is engineered as a robust, scalable solution for the "last-mile" scrap collection industry. Unlike simple CRUD applications, this system handles complex state synchronization across multiple user roles (Admins and Field Workers) and integrates deep mapping logic to solve physical logistics challenges. It prioritizes reliability and offline resilience, ensuring that field operations continue even in areas with poor network coverage.
 
 ## ⚠️ Problem Statement
 
-Traditional scrap collection often suffers from:
+In the scrap collection industry, manual coordination leads to significant inefficiencies:
 
-- **Inefficient Routing**: Workers manual navigation leading to high fuel costs and time loss.
-- **Lack of Transparency**: Customers and admins having no real-time visibility into order status.
-- **Assignment Delays**: Difficulty in matching orders with available workers based on proximity and load.
-- **Data Fragmentation**: Relying on manual logs which lead to errors in transaction history and worker performance tracking.
+- **Operation Latency**: Delays in assigning pickup requests to available field workers.
+- **Suboptimal Logistics**: High fuel costs and time wastage due to disorganized routing.
+- **Data Silos**: Difficulty tracking financial transactions and worker performance across the fleet.
+- **Resiliency Gaps**: Field workers losing access to critical order data in dead zones.
 
-**Scrapekia solves these issues** by centralizing operations into a real-time, map-driven dashboard with automated priority logic and role-based access control.
+**Scrapekia addresses these by providing a real-time, geolocated, and offline-capable dashboard that optimizes fleet movement and automates order prioritization.**
 
 ---
 
 ## ✨ Key Features
 
-- **🚀 Real-time Order Management**: Global state synchronization for pickup requests, ensuring admins and workers see updates instantly.
-- **🤝 Worker Assignment System**: Sophisticated RPC-based assignment logic ensures orders are claimed by the right personnel without conflicts.
-- **🔐 Role-Based Access Control (RBAC)**: Secure, distinct interfaces for Admins (fleet management) and Workers (field operations).
-- **🗺️ Interactive Mapping Engine**:
-  - **Offline Support**: Integration of MBTiles for core map data availability in low-signal areas.
-  - **Dynamic Routing**: Real-time road sorting and routing using the OSRM API.
-  - **Proximity Sorting**: Orders are automatically sorted based on the worker's live GPS coordinates.
-- **📅 Availability Scheduling**: Workers can set their active windows, allowing the system to intelligently manage workforce distribution.
-- **⚡ Smart Priority System**: Orders feature an automatic "Priority Bump" logic where urgency increases based on elapsed time from the request.
-- **📑 Transaction Logging**: Comprehensive history of all completed collections and financial transactions.
-- **📊 Admin Dashboard**: High-level telemetry for managers to monitor system health, worker productivity, and order volume.
+- **🔄 Real-Time Synchronization**: Leverages Supabase real-time subscriptions and Riverpod reactive state to ensure all stakeholders see order status updates instantly.
+- **🛠️ Intelligent Dispatch System**: RPC-driven worker assignment logic prevents race conditions during order claims.
+- **📈 Automated Priority Bumping**: A server-side/client-side hybrid logic that elevates order urgency (Normal → Medium → Urgent) automatically based on elapsed time.
+- **👥 Role-Based Access Control (RBAC)**: Secure access management using Supabase Row Level Security (RLS) to separate administrative telemetry from worker-specific field data.
+- **💰 Financial Transparency**: Built-in transaction logging and service price lists to standardize collection costs and payments.
+
+---
+
+## 🏛️ System Architecture
+
+Scrapekia utilizes a **Feature-First Modular Architecture**, promoting strict separation of concerns and high testability.
+
+### Architectural Layers:
+
+1.  **Presentation Layer**: Decoupled UI using Riverpod `Notifier` and `StateNotifier`. This ensures that business logic is completely separated from the widget tree.
+2.  **Domain Layer**: Feature-specific models (Orders, Users, MapData) that represent the business state.
+3.  **Data Layer**: Centralized repositories managing Supabase interactions, Hive local caching, and secure storage for sensitive credentials.
+4.  **Service Layer**: Singleton-style services for GPS tracking, OSRM routing, and network connectivity monitoring.
+
+### Why Riverpod?
+
+Riverpod was chosen for its compile-time safety and ability to handle complex provider dependencies. During development, we optimized the logout flow to handle recursive provider invalidations, ensuring a clean state reset across all modules without circular dependency exceptions.
+
+---
+
+## 🗺️ Map & Location System
+
+The heart of the application is a sophisticated mapping engine:
+
+- **Offline Resilience**: Uses **MBTiles (sqlite3)** to store and render map tiles locally, ensuring functionality without internet.
+- **Route Optimization**: Integrates **OSRM (Open Source Routing Machine)** for real-time road-distance calculations rather than simple "as-the-crow-flies" distance.
+- **Dynamic Proximity Sorting**: field workers see orders sorted by actual road distance from their current GPS coordinates.
+- **Edge Indicators**: A custom UI implementation that points to off-screen markers, helping workers maintain spatial awareness of their surrounding assignments.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-
-- **Framework**: [Flutter](https://flutter.dev/) (3.10.7+)
-- **State Management**: [Riverpod](https://riverpod.dev/) (NotifierProvider pattern)
-- **Local Database**: [Hive](https://pub.dev/packages/hive_ce) & [Shared Preferences](https://pub.dev/packages/shared_preferences) for high-speed caching.
-- **Mapping**: [Flutter Map](https://pub.dev/packages/flutter_map) + [latlong2](https://pub.dev/packages/latlong2)
-- **Animations**: [Lottie](https://pub.dev/packages/lottie) & [Confetti](https://pub.dev/packages/confetti) for premium UX.
-
-### Backend & Infrastructure
-
-- **BaaS**: [Supabase](https://supabase.com/)
-  - **PostgreSQL**: Relational data storage with RLS (Row Level Security) policies.
-  - **GoTrue**: Secure phone-based authentication.
-  - **Edge Functions / RPC**: Server-side logic for complex transactional operations.
-  - **Storage**: Highly scalable S3-compatible storage for order images.
-- **Networking**: [HTTP](https://pub.dev/packages/http) & [Connectivity Plus](https://pub.dev/packages/connectivity_plus).
+- **Frontend**: Flutter SDK (3.10.7+), Material 3
+- **State Management**: flutter_riverpod, state_notifier
+- **Database (Cloud)**: PostgreSQL via Supabase
+- **Database (Local)**: Hive CE (High-performance NoSQL), SharedPreferences
+- **Mapping**: flutter_map, latlong2, OSRM API, mbtiles
+- **Security**: Supabase Auth, flutter_secure_storage, BCrypt
+- **UI/UX**: Lottie, Shimmer AI, Google Fonts (Cairo)
 
 ---
 
-## 🏗️ System Architecture
+## 🔐 Security & Authentication
 
-Scrapekia follows a feature-first architectural pattern, ensuring high modularity and testability.
-
-```mermaid
-graph TD
-    UI[Flutter UI Layer] --> Notifier[Riverpod Notifiers]
-    Notifier --> Repository[Data Repositories]
-    Repository --> Supabase[(Supabase/Postgres)]
-    Repository --> Local[(Hive Local Cache)]
-    Notifier --> Map[Mapping Service / OSRM]
-
-    subgraph Features
-    A[Auth]
-    M[Map]
-    O[Orders]
-    P[Pricelist]
-    S[Settings]
-    end
-```
-
-- **Core Layer**: Shared UI components, theme tokens, and foundation services.
-- **Data Layer**: Supabase integration and local persistence logic.
-- **Presentation Layer**: Riverpod-driven states ensuring a reactive and performant UI.
+- **Identity Management**: Secure phone-to-email masking for private user authentication.
+- **Data Privacy**: RLS policies ensure workers only access assigned data, while admins maintain full visibility.
+- **Credential Storage**: Sensitive tokens are managed via `flutter_secure_storage` using platform-specific encryption (Keychain for iOS, Keystore for Android).
 
 ---
 
@@ -96,24 +89,28 @@ graph TD
 <div align="center">
   <table>
     <tr>
-      <td><img src="app screenshot/Screenshot_20260310_133824.jpg" width="200" alt="Dashboard" /><br/><b>Dashboard</b></td>
-      <td><img src="app screenshot/Screenshot_20260310_133839.jpg" width="200" alt="Live Map" /><br/><b>Live Map</b></td>
-    </tr>
-    <tr>
-      <td><img src="app screenshot/Screenshot_20260310_133851.jpg" width="200" alt="Order Details" /><br/><b>Orders</b></td>
-      <td><img src="app screenshot/Screenshot_20260310_133906.jpg" width="200" alt="User Profile" /><br/><b>Profile</b></td>
+      <td><img src="app screenshot/Screenshot_20260310_133824.jpg" width="180" /><br/><b>Dashboard</b></td>
+      <td><img src="app screenshot/Screenshot_20260310_133839.jpg" width="180" /><br/><b>Map Engine</b></td>
+      <td><img src="app screenshot/Screenshot_20260310_133851.jpg" width="180" /><br/><b>Fleet Orders</b></td>
+      <td><img src="app screenshot/Screenshot_20260310_133906.jpg" width="180" /><br/><b>Profile</b></td>
     </tr>
   </table>
 </div>
 
 ---
 
-## 🚀 Future Improvements
+## 📈 Scalability & Future Improvements
 
-- **AI-Driven Route Optimization**: Implementing more complex TSP (Traveling Salesman Problem) algorithms for multi-stop collections.
-- **Push Notification Integration**: Real-time alerts for customers when a worker is En-Route.
-- **Predictive Analytics**: Forecasting scrap volume in specific regions based on historical data.
-- **Multi-language Support**: Expanding beyond Arabic to serve more diverse markets.
+- **TSP Algorithm Integration**: Moving from proximity sorting to a full Traveling Salesman Problem (TSP) solver for worker route batches.
+- **Push Notification Service**: Implementation of FCM (Firebase Cloud Messaging) for instant dispatch alerts.
+- **Analytics Engine**: Leveraging Supabase functions to generate weekly performance reports for fleet managers.
+
+---
+
+## 💡 Lessons Learned & Engineering Insights
+
+- **State Management Resilience**: One of the critical engineering hurdles was managing the invalidation of multiple dependent providers (Auth, Map, Orders) during logout. Transitioning `late final` fields to `late` allowed the Riverpod `build()` method to refresh cleanly, preventing `LateInitializationError` during rapid state transitions.
+- **Geo-Spatial Performance**: Rendering hundreds of map markers with real-time route updates required careful optimization of the Riverpod `listen` and `select` patterns to prevent UI jank.
 
 ---
 
@@ -128,4 +125,4 @@ graph TD
 
 ## 📄 License
 
-This project is proprietary and built for **Scrapekia**. All rights reserved.
+This project is proprietary property of **Scrapekia**.
