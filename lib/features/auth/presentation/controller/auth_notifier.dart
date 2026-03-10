@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:moamen_project/core/utils/fake_email.dart';
 import 'package:moamen_project/core/utils/normiliz_eg_phone.dart';
 import 'package:moamen_project/core/utils/supabase_text.dart';
-import 'package:moamen_project/features/auth/presentation/controller/auth_provider.dart';
 import 'package:moamen_project/features/dashboard/presentation/controller/nav_notifier.dart';
 import 'package:moamen_project/features/map/presentation/controller/map_provider.dart';
 import 'package:moamen_project/features/orders/presentation/controller/order_provider.dart';
@@ -15,7 +14,7 @@ import '../../data/models/user_model.dart';
 import 'auth_state.dart';
 
 class AuthNotifier extends Notifier<AppAuthState> {
-  late final SupabaseClient _supabase;
+  late SupabaseClient _supabase;
 
   @override
   AppAuthState build() {
@@ -293,15 +292,14 @@ class AuthNotifier extends Notifier<AppAuthState> {
 
   void logout() {
     _supabase.auth.signOut();
-   
-  ref.invalidate(authProvider);
-  ref.invalidate(orderProvider);
-  ref.invalidate(mapProvider);
-  ref.invalidate(priceProvider);
-  ref.invalidate(navIndexProvider);
-  ref.invalidate(settingProvider);
-  
-  // auth غالبًا هتعمله set null أو invalidate حسب تصميمك
+
+    ref.invalidate(orderProvider);
+    ref.invalidate(mapProvider);
+    ref.invalidate(priceProvider);
+    ref.invalidate(navIndexProvider);
+    ref.invalidate(settingProvider);
+
+    // auth غالبًا هتعمله set null أو invalidate حسب تصميمك
 
     state = state.clearUser();
   }

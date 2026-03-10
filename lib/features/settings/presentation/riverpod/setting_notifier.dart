@@ -9,7 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'setting_state.dart';
 
 class SettingNotifier extends Notifier<SettingState> {
-  late final SupabaseClient _supabase;
+  late SupabaseClient _supabase;
 
   @override
   SettingState build() {
@@ -103,7 +103,7 @@ class SettingNotifier extends Notifier<SettingState> {
       await _supabase
           .from(SupabaseTables.profiles)
           .update(updates)
-          .eq(SupabaseProfileCulomns.id, user!.id);
+          .eq(SupabaseProfileCulomns.id, user.id);
 
       // 3. Update local auth state
       final updatedUser = user.copyWith(

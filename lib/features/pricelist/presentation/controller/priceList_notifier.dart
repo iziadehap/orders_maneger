@@ -8,7 +8,7 @@ import 'package:moamen_project/features/pricelist/presentation/controller/priceL
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PricelistNotifier extends Notifier<PricelistState> {
-  late final SupabaseClient _supabase;
+  late SupabaseClient _supabase;
 
   @override
   PricelistState build() {
