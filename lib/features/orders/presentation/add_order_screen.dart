@@ -32,6 +32,8 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen>
   // ── Form ──────────────────────────────────
   final _formKey = GlobalKey<FormState>();
 
+  bool _isDeleting = false;
+
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _areaController = TextEditingController();
@@ -510,6 +512,10 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen>
                                 const SizedBox(height: 32),
                                 _buildContactSection(),
                                 const SizedBox(height: 40),
+                                if (widget.order != null) ...[
+                                  _buildDeleteButton(),
+                                  const SizedBox(height: 40),
+                                ],
                               ],
                             ),
                           ),
@@ -529,6 +535,173 @@ class _AddOrderScreenState extends ConsumerState<AddOrderScreen>
   // ─────────────────────────────────────────
   // Sections
   // ─────────────────────────────────────────
+
+  Widget _buildDeleteButton() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(
+              context,
+            ).extension<CustomThemeExtension>()!.errorColor.withOpacity(0.1),
+            Theme.of(
+              context,
+            ).extension<CustomThemeExtension>()!.errorColor.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Theme.of(
+            context,
+          ).extension<CustomThemeExtension>()!.errorColor.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _confirmDelete(),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.delete_outline_rounded,
+                  color: Theme.of(
+                    context,
+                  ).extension<CustomThemeExtension>()!.errorColor,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'حذف الاوردر',
+                  style: GoogleFonts.cairo(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(
+                      context,
+                    ).extension<CustomThemeExtension>()!.errorColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete() async {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: customTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: customTheme.errorColor,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'تأكيد الحذف',
+              style: GoogleFonts.cairo(
+                color: customTheme.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'هل أنت متأكد من حذف هذا الاوردر؟\nهذا الإجراء لا يمكن التراجع عنه.',
+          style: GoogleFonts.cairo(
+            color: customTheme.textSecondary,
+            fontSize: 14,
+            height: 1.6,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'إلغاء',
+              style: GoogleFonts.cairo(
+                color: customTheme.textSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: customTheme.errorColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              'حذف',
+              style: GoogleFonts.cairo(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true && mounted) {
+      await _performDelete();
+    }
+  }
+
+  Future<void> _performDelete() async {
+    final customTheme = Theme.of(context).extension<CustomThemeExtension>()!;
+    final notifier = ref.read(orderProvider.notifier);
+
+    // Show loading overlay or disable button
+    setState(() {
+      _isDeleting = true;
+    });
+
+    final success = await notifier.deleteOrder(
+      orderId: widget.order!.id,
+      userId: ref.read(authProvider).user?.id ?? '',
+      order: widget.order!,
+    );
+
+    setState(() {
+      _isDeleting = false;
+    });
+
+    if (success && mounted) {
+      _showSnackbar(
+        customTheme,
+        message: 'تم حذف الاوردر بنجاح',
+        icon: Icons.check,
+        color: customTheme.statusGreen,
+      );
+      Navigator.pop(context, true); // Return true to indicate deletion
+    } else if (mounted) {
+      _showSnackbar(
+        customTheme,
+        message: 'حدث خطأ أثناء حذف الاوردر',
+        icon: Icons.error,
+        isError: true,
+      );
+    }
+  }
 
   Widget _buildGeneralSection(CustomThemeExtension customTheme) {
     return _AnimatedSection(

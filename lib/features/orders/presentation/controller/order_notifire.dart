@@ -337,82 +337,82 @@ class OrderNotifier extends Notifier<OrderState> {
     state = state.copyWith(photoUrls: [], localPhotos: []);
   }
 
-  // Future<bool> deleteOrder({
-  //   required String orderId,
-  //   required String userId,
-  //   required Order order,
-  // }) async {
-  //   state = state.copyWith(isLoading: true, isError: false);
+  Future<bool> deleteOrder({
+    required String orderId,
+    required String userId,
+    required Order order,
+  }) async {
+    state = state.copyWith(isLoading: true, isError: false);
 
-  //   try {
-  //     final List<String> filePaths = order.photoUrls.map((url) {
-  //       final uri = Uri.parse(url);
-  //       // uri.path = "/storage/v1/object/public/orders-photos/1771459910224_48_compressed.webp"
-  //       final parts = uri.path.split('/public/');
-  //       if (parts.length < 2) {
-  //         throw Exception('Invalid photo URL: $url');
-  //       }
-  //       final bucketAndPath =
-  //           parts[1]; // "orders-photos/1771459910224_48_compressed.webp"
-  //       final pathParts = bucketAndPath.split(
-  //         '/',
-  //       ); // [ "orders-photos", "1771459910224_48_compressed.webp" ]
-  //       if (pathParts.length < 2) {
-  //         throw Exception('Invalid path format: $url');
-  //       }
-  //       return pathParts[1]; // => "1771459910224_48_compressed.webp" فقط
-  //     }).toList();
+    try {
+      final List<String> filePaths = order.photoUrls.map((url) {
+        final uri = Uri.parse(url);
+        // uri.path = "/storage/v1/object/public/orders-photos/1771459910224_48_compressed.webp"
+        final parts = uri.path.split('/public/');
+        if (parts.length < 2) {
+          throw Exception('Invalid photo URL: $url');
+        }
+        final bucketAndPath =
+            parts[1]; // "orders-photos/1771459910224_48_compressed.webp"
+        final pathParts = bucketAndPath.split(
+          '/',
+        ); // [ "orders-photos", "1771459910224_48_compressed.webp" ]
+        if (pathParts.length < 2) {
+          throw Exception('Invalid path format: $url');
+        }
+        return pathParts[1]; // => "1771459910224_48_compressed.webp" فقط
+      }).toList();
 
-  //     if (filePaths.isNotEmpty) {
-  //       try {
-  //         await _supabase.storage
-  //             .from(SupabaseTables.PhotosBucket)
-  //             .remove(filePaths);
-  //       } catch (e) {
-  //         print('Storage cleanup error (proceeding): $e');
-  //       }
-  //     }
+      if (filePaths.isNotEmpty) {
+        try {
+          await _supabase.storage
+              .from(SupabaseTables.PhotosBucket)
+              .remove(filePaths);
+        } catch (e) {
+          print('Storage cleanup error (proceeding): $e');
+        }
+      }
 
-  //     // 3. Delete the record from the database
-  //     // Use select() to confirm deletion
-  //     final dbResponse = await _supabase
-  //         .from(SupabaseTables.orders)
-  //         .delete()
-  //         .eq(SupabaseOrdersCulomns.id, orderId)
-  //         .select();
+      // 3. Delete the record from the database
+      // Use select() to confirm deletion
+      final dbResponse = await _supabase
+          .from(SupabaseTables.orders)
+          .delete()
+          .eq(SupabaseOrdersCulomns.id, orderId)  
+          .select();
 
-  //     print('DB Delete Response: $dbResponse');
+      print('DB Delete Response: $dbResponse');
 
-  //     if ((dbResponse as List).isEmpty) {
-  //       print(
-  //         'Error: Order NOT deleted from database. Check RLS policies for table "orders".',
-  //       );
-  //       state = state.copyWith(
-  //         isLoading: false,
-  //         isError: true,
-  //         errorMessage: 'فشل حذف الاوردر.',
-  //       );
-  //       return false;
-  //     }
+      if ((dbResponse as List).isEmpty) {
+        print(
+          'Error: Order NOT deleted from database.',
+        );
+        state = state.copyWith(
+          isLoading: false,
+          isError: true,
+          errorMessage: 'فشل حذف الاوردر.',
+        );
+        return false;
+      }
 
-  //     state = state.copyWith(isLoading: false);
-  //     // remove order from list
-  //     final updatedOrders = state.orders
-  //         .where((order) => order.id != orderId)
-  //         .toList();
-  //     state = state.copyWith(orders: updatedOrders);
-  //     // fetchOrders();
-  //     return true;
-  //   } catch (e) {
-  //     print('Delete error: $e');
-  //     state = state.copyWith(
-  //       isLoading: false,
-  //       isError: true,
-  //       errorMessage: e.toString(),
-  //     );
-  //     return false;
-  //   }
-  // }
+      state = state.copyWith(isLoading: false);
+      // remove order from list
+      final updatedOrders = state.orders
+          .where((order) => order.id != orderId)
+          .toList();
+      state = state.copyWith(orders: updatedOrders);
+      // fetchOrders();
+      return true;
+    } catch (e) {
+      print('Delete error: $e');
+      state = state.copyWith(
+        isLoading: false,
+        isError: true,
+        errorMessage: e.toString(),
+      );
+      return false;
+    }
+  }
 
   // Future<bool> cancelOrder({
   //   required String orderId,
