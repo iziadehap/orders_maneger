@@ -244,7 +244,7 @@ Widget _buildPriceBadge(
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          priceItem.price.toStringAsFixed(0),
+          priceItem.price.toString(),
           style: GoogleFonts.cairo(
             color: customTheme.textPrimary,
             fontSize: 24,
