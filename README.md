@@ -219,8 +219,6 @@ Possible future enhancements include:
 
 # 👨‍💻 Author
 
-**Your Name**
-
 GitHub
 [https://github.com/iziadehap](https://github.com/iziadehap)
 
